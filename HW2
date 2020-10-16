@@ -1,0 +1,68 @@
+#include <iostream>
+#include<vector>
+#include<string>
+#include <fstream>
+
+
+using namespace std;
+
+class Measurements{
+private:
+int ft;
+int in;
+
+public:
+Measurements(){
+    ft = 0;
+    in = 0;
+}
+    
+Measurements(int f, int i){
+    ft = f;
+    if (i < 0) {
+        int count = 0;
+        while (i < 0) {
+            i += 12;
+            count ++;
+            
+        }
+        in = i;
+        ft -= count;
+        
+    }
+    else if (i > 11){
+        in = i % 12;
+        ft += i/12;
+    }
+    else{
+        in = i;
+    }
+}
+    
+void display(){
+    cout << ft << " ft. " << in << " in." << endl;
+}
+};
+
+
+int main(){
+    Measurements meas1(5, 6);
+    Measurements meas2(6, -6);
+    Measurements meas3(5, 13);
+    Measurements meas4(5, -13);
+    Measurements meas5(6, +6);
+    Measurements meas6(0, 18);
+    Measurements meas7(4, 0);
+    Measurements meas8(3, 12);
+    
+    meas1.display();
+    meas2.display();
+    meas3.display();
+    meas4.display();
+    meas5.display();
+    meas6.display();
+    meas7.display();
+    meas8.display();
+}
+
+
