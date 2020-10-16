@@ -1,0 +1,422 @@
+################################################ Question 1 ###############################################
+
+"
+Write a recursive function which will receive a c-string (char*) and a character to search for.  Your function cannot have any loops
+and should return the total number of occurrences of the character in the cstring.  Your function signature must be as below:
+
+int findOccurrences(char* cstr, char toFind);
+"
+
+#include <iostream>
+
+using namespace std;
+
+int findOccurrences(char *cstr, char toFind) {
+    // base case
+    if(*cstr == '\0') {
+        return 0;
+    }
+    
+    int count = 0;
+    
+    if(*cstr == toFind) {
+        count++;
+    }
+    
+    return count + findOccurrences(cstr + 1, toFind);
+}
+
+int main() {
+    char str[] = "abcda aa aer";
+    
+    cout << findOccurrences(str, 'a') << endl;
+    cout << findOccurrences(str, 'e') << endl;
+    cout << findOccurrences(str, 'x') << endl;
+
+    return 0;
+}
+
+
+################################################ Question 2 ###############################################
+
+"
+A simple hash table can be implemented, for integers, as an array (not vector) of linked lists.  For a simple hash function, we can use
+the modulo to find the “hash” value of an integer.  Specifically, if we have a 10 element array, and want to store the value 103, we
+would store it in position 3 (103%10=3).  If we had a 15 element array, that same value would hash to 13 (103%15=13).  Since multiple
+values can “hash” to the same location (collision), we use the linked list to resolve collisions (separate chain hashing).
+
+A good start is to have an array size of 5, but to double the size of the array (and rehash all of the values, of course) when the array
+gets more than 80% full (so the first resize will happen after 5 inserts).
+
+Please implement the following:
+      (A) The IntHasher class which contains, at least, the following
+            i.   Insert (add an int to the table)
+            ii.  Remove (take an int out of the table; do nothing if it doesn’t exist)
+            iii. Find (return true or false if it exists)
+      (B) An output operator which prints ALL of the values in the hash table (order doesn’t matter), one per line
+      (C) An addition operator which allows for the combination of two intHasher objects.
+"
+
+#include <iostream>
+
+using namespace std;
+
+class Node {
+    public:
+    int value;
+    Node *next;
+    
+    Node(int v, Node *n = nullptr) {
+        value = v;
+        next = n;
+    }
+};
+
+class IntHasher {
+    private:
+    Node **table;
+    int capacity;
+    int numElems;
+
+    int hash(int num) const;
+    void resize();
+    void deallocateTable(Node **table, int capacity);
+
+    public:
+    IntHasher(int capacity=5);
+    ~IntHasher();
+    
+    void Insert(int a);
+    void Remove(int a);
+    bool Find(int a) const;
+    
+    IntHasher operator+ (IntHasher const &obj) const;
+    friend ostream& operator<<(ostream& os, const IntHasher& ht);
+};
+
+int IntHasher::hash(int num) const{
+    return num % capacity;
+}
+
+void IntHasher::resize() {
+    Node **oldTable = table;
+    int oldCapacity = capacity;
+    
+    capacity = 2 * capacity;
+    table = new Node*[capacity];
+    numElems = 0;
+    for(int i=0; i<capacity; i++) {
+        table[i] = nullptr;
+    }
+
+    for(int i=0; i<oldCapacity; i++) {
+        Node *x = oldTable[i];
+        while(x != nullptr) {
+            Insert(x->value);
+            x = x->next;
+        }
+    }
+    deallocateTable(oldTable, oldCapacity);
+}
+
+
+void IntHasher::deallocateTable(Node **nodeTable, int cap) {
+    
+    for(int i=0; i<cap; i++) {
+        Node *x = nodeTable[i];
+        while(x != nullptr) {
+            Node *d = x;
+            x = x->next;
+            delete d;
+        }
+    }
+    delete nodeTable;
+}
+
+IntHasher::IntHasher(int capacity) {
+    this->capacity = capacity;
+    this->numElems = 0;
+    table = new Node*[capacity];
+    for(int i=0; i<capacity; i++) {
+        table[i] = nullptr;
+    }
+}
+
+IntHasher::~IntHasher() {
+    cout << "Deallocating the hash table memory" << endl;
+    deallocateTable(table, capacity);
+}
+
+void IntHasher::Insert(int a) {
+    if(capacity * 0.8 < numElems) {
+        resize();
+    }
+    int index = hash(a);
+    table[index] = new Node(a, table[index]);
+    numElems++;
+}
+
+void IntHasher::Remove(int a) {
+    int index = hash(a);
+
+    Node *x = table[index];
+    Node *prev = nullptr;
+
+    while(x != nullptr) {
+        if(x->value == a) {
+            break;
+        }
+        prev = x;
+        x = x->next;
+    }
+
+    if(x != nullptr) {
+        if(prev == nullptr) {
+            table[index] = x->next;
+        } else {
+            prev->next = x->next;
+        }
+        delete x;
+        numElems--;
+    }
+}
+
+bool IntHasher::Find(int a) const {
+    int index = hash(a);
+
+    Node *x = table[index];
+
+    while(x != nullptr) {
+        if(x->value == a) {
+            return true;
+        }
+        x = x->next;
+    }
+    return false;
+}
+
+
+IntHasher IntHasher::operator+ (IntHasher const &obj) const {
+    IntHasher result;
+
+    for(int i=0; i<capacity; i++) {
+        Node *x = table[i];
+        while(x != nullptr) {
+            result.Insert(x->value);
+            x = x->next;
+        }
+    }
+    for(int i=0; i<obj.capacity; i++) {
+        Node *x = obj.table[i];
+        while(x != nullptr) {
+            result.Insert(x->value);
+            x = x->next;
+        }
+    }
+
+    return result;
+}
+
+ostream& operator<<(ostream& os, const IntHasher& ht) {
+    for(int i=0; i<ht.capacity; i++) {
+        //os << "Index " << i << ": ";
+        Node *x = ht.table[i];
+        while(x != nullptr) {
+            os << x->value << endl;
+            x = x->next;
+        }
+    }
+    return os;
+}
+
+
+int main() {
+    IntHasher ht1;
+
+    ht1.Insert(2);
+    ht1.Insert(17);
+    ht1.Insert(23);
+    ht1.Insert(51);
+    ht1.Insert(56);
+    cout << "******** Table 1: ********" << endl;
+    cout << ht1 << endl;
+    
+    ht1.Insert(56);
+    cout << "******** After resizing, Table 1: ********" << endl;
+    cout << ht1 << endl;
+    
+    if(ht1.Find(23)) {
+        cout << "23 exists in table1" << endl;
+    } else {
+        cout << "Error: 23 does not exist in table1" << endl;
+    }
+    if(ht1.Find(53)) {
+        cout << "Error: 53 does not exist in table1, but find returning true" << endl;
+    }
+    
+    IntHasher ht2(10);
+    ht2.Insert(13);
+    ht2.Insert(14);
+    ht2.Insert(15);
+    ht2.Insert(16);
+    ht2.Insert(17);
+    ht2.Insert(27);
+    ht2.Insert(37);
+    ht2.Insert(18);
+    cout << "******** Table 2: ********" << endl;
+    cout << ht2 << endl;
+
+    ht2.Remove(27);
+    ht2.Remove(37);
+    cout << "******** After removal of 27 and 37, Table 2: ********" << endl;
+    cout << ht2 << endl;
+
+    IntHasher finalTable = ht1 + ht2;
+    cout << "******** Sum of both tables: ********" << endl;
+    cout << finalTable << endl;
+
+    return 0;
+}
+
+
+################################################ Question 3 ###############################################
+
+"
+We will be designing a management system for a national train system (think: Amtrak)!  Our trains are made up of many cars, each of
+which could be a passenger car, or a cargo car.  On any train, it is important that we know the weight of the train so as to be able
+to plan for fuel needed and stopping distances.  Cargo cars have to account for the weight of all the cargo contained in them but
+passenger cars can make an estimate as to their weight based on the number of passengers multiplied by the weight of an “average”
+passenger (currently 220 pounds, including baggage).  Please design the following classes and functions keeping in mind the 
+restrictions above and below 
+
+    (A) Train.  This class will store all of the cars in a vector and will have the following functions:
+              i.	an “addCar” function which adds one of the car types below
+              ii.	an “getTotalWeight” function which gets the total weight of all cars on the train 
+              
+    (B) CargoCar.  This class will store information about all of the cargo contained in the car.  It will have the following functions:
+              i.	An “addPackage” function which will take a double, the weight of the cargo to be added to this car
+              ii.	A “getWeight” function which returns the total weight of the car (the sum of all packages)
+              
+    (C) PassengerCar. This class will store the number of passengers in the car.  It will have the following functions
+              i.	Overloaded ++ and - - operators (all of them) which will increase and decrease the number of passengers in the car
+              ii.	A “getWeight” function which returns the total weight of the car (the number of passengers multiplied by 220).
+              
+    (D) A main that creates a train with two passenger cars and a cargo car, adds a 1500 pound package to the CargoCar, adds a passenger
+        to each of the PassengerCars and then prints the total weight of the train to the screen.
+        
+ Notes: 
+•	Use vectors to make your life easier!
+•	You may inline functions as long as they do not exceed one line of code
+•	Remember to use const where appropriate!
+"
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+class Car {
+    public:
+    virtual double getWeight() const { return 0; };
+};
+
+class CargoCar: public Car {
+    private:
+    vector<double> packages;
+
+    public:
+    CargoCar(){ }
+    ~CargoCar() { }
+    void addPackage(double w) { packages.push_back(w); }
+    double getWeight() const;
+};
+
+double CargoCar::getWeight() const {
+    double totalWt = 0;
+    for(auto &p: packages) {
+        totalWt += p;
+    }
+    return totalWt;
+}
+    
+class PassengerCar: public Car {
+    private:
+    int numPassengers;
+
+    public:
+    PassengerCar(){ numPassengers = 0; }
+    ~PassengerCar() { }
+    double getWeight() const { return 220 * numPassengers; }
+    
+    PassengerCar operator++();
+    PassengerCar operator++(int);
+    PassengerCar operator--();
+    PassengerCar operator--(int);
+};
+
+PassengerCar PassengerCar::operator++() {
+    return *this;
+}
+
+PassengerCar PassengerCar::operator++(int) {
+    PassengerCar p;
+    p.numPassengers = numPassengers;
+    numPassengers = numPassengers + 1;
+    return p;
+}
+
+PassengerCar PassengerCar::operator--() {
+    numPassengers = numPassengers - 1;
+    if(numPassengers < 0) {
+        numPassengers = 0;
+    }
+    return *this;
+}
+
+PassengerCar PassengerCar::operator--(int) {
+    PassengerCar p;
+    p.numPassengers = numPassengers;
+    numPassengers = numPassengers - 1;
+    if(numPassengers < 0) {
+        numPassengers = 0;
+    }
+    return p;
+}
+
+class Train {
+    private:
+    vector<Car *> cars;
+
+    public:
+    void addCar(Car *c);
+    double getTotalWeight() const;
+};
+
+void Train::addCar(Car *c) {
+    cars.push_back(c);
+}
+
+double Train::getTotalWeight() const {
+    double totalWt = 0;
+    for(auto &c: cars) {
+        totalWt += c->getWeight();
+    }
+    return totalWt;
+}
+
+int main() {
+
+    Train train;
+    PassengerCar pCar1, pCar2;
+    CargoCar cCar1;
+
+    cCar1.addPackage(1500);
+    pCar1++;
+    pCar2++;
+
+    train.addCar(&pCar1);
+    train.addCar(&pCar2);
+    train.addCar(&cCar1);
+
+    std::cout << "After adding two passenger cars and one cargoCar, the total weight of the train is: " << train.getTotalWeight() << " pounds." << endl;
+}
