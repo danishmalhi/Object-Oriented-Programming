@@ -1,0 +1,35 @@
+#include <iostream>
+
+void copyArr(const int *arr, const int size, int* &result) {
+    result = new int[size];
+    for(int i=0; i<size; i++) {
+        int pos = i;
+
+        // Using insertion sort while copying
+        // Arranging the position over the previous positions
+        int j = pos - 1;
+        while(j >= 0) {
+            // If previous value is more, swap it.
+            if(result[j] > arr[i]) {
+                result[pos--] = result[j];
+            }
+            else {
+                break;
+            }
+            j--;
+        }
+        result[pos] = arr[i];
+    }
+}
+
+// CODE TESTING
+int main() {
+    int arr1[] = {111, 121, 31, 41, 151};
+    int *result;
+
+    copyArr(arr1, 5, result);
+
+    for(int i=0; i<5; i++) {
+        std::cout << result[i] << std::endl;
+    }
+}
