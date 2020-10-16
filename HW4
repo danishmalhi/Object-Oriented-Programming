@@ -1,0 +1,145 @@
+//PROBLEM1    PROBLEM1    PROBLEM1    PROBLEM1    PROBLEM1    PROBLEM1
+
+#include<iostream>
+#include<string>
+#include<vector>
+
+
+using namespace std;
+
+void reverseStr(char* str) {
+    unsigned long int len, i;
+    char *f_ptr, *r_ptr, chr;
+    
+    len = strlen(str);
+    
+    f_ptr = str;
+    r_ptr = str;
+    
+    for (i = 0; i < len - 1; i++)
+        r_ptr++;
+
+    
+    for (i = 0; i < len / 2; i++) {
+        chr = *f_ptr;
+        *f_ptr = *r_ptr;
+        *r_ptr = chr;
+        f_ptr++;
+        r_ptr--;
+    }
+}
+
+int main() {
+    char evenStr[10] = "Banana";
+    reverseStr(evenStr);
+    cout<<"Reverse of even sized string: "<< evenStr;
+    
+    char oddStr[10] = "Grape";
+    reverseStr(oddStr);
+    cout<<"Reverse of odd sized string: "<< oddStr;
+    return 0;
+}
+
+
+//PROBLEM2    PROBLEM2    PROBLEM2    PROBLEM2    PROBLEM2    PROBLEM2    PROBLEM2
+
+#include<iostream>
+#include<string>
+#include<vector>
+
+
+using namespace std;
+
+void max_heapify(int a[], int N, int i){
+   int parent = (i - 1) / 2;
+
+   if (a[parent] > 0){
+       if (a[i] > a[parent]){
+           swap(a[i], a[parent]);
+           max_heapify(a, N, parent);
+       }
+   }
+}
+
+
+void insert_node(int a[], int& N, int x){
+   N = N + 1;
+    
+   a[N - 1] = x;
+
+   max_heapify(a, N, N - 1);
+}
+
+
+void print_heap(int a[], int N){
+   for (int i = 0; i < N; ++i)
+       cout << a[i] << " ";
+
+   cout << endl;
+}
+
+
+int main(){
+    int MAX = 1000;
+    int a[MAX] = { 20, 10, 6, 4, 8 };
+    int N = 5;
+    int x = 15;
+    cout<<"Heap before adding new element:\n";
+    print_heap(a,N);
+    insert_node(a, N, x);
+    cout<<"Heap after adding new element: \n";
+    print_heap(a, N);
+    return 0;
+}
+
+
+//PROBLEM3    PROBLEM3    PROBLEM3    PROBLEM3    PROBLEM3    PROBLEM3
+
+#include<iostream>
+#include<string>
+#include<vector>
+
+
+using namespace std;
+
+
+int main() {
+    vector<int> grades;
+        int num;
+        cout << "Enter grades: (-1 to stop): ";
+        do{
+            cin >> num;
+            if (num != -1)
+                grades.push_back(num);
+        } while (num != -1);
+        
+        int minGrade = 0;
+        int maxGrade = grades[0];
+        for (size_t i = 0; i < grades.size(); i++){
+            if (maxGrade < grades[i])
+                maxGrade = grades[i];
+        }
+        int* histogram= new int[maxGrade+1];
+        for (size_t i = 0; i <= maxGrade; i++){
+            histogram[i] = 0;
+        }
+        for (size_t i = 0; i < grades.size(); i++){
+            for (size_t j = minGrade; j <= maxGrade; j++){
+                if (grades[i] == j){
+                    if (histogram[j] == 0)
+                        histogram[j] = 1;
+                    else
+                    histogram[j] += 1;
+                }
+            }
+        }
+        for (size_t i = 0; i <= maxGrade; i++){
+            if (histogram[i] != 0){
+                cout << "Number of " << (i) << "'s: " << histogram[i] << endl;
+            }
+        return 0;
+        }
+}
+        
+
+    
