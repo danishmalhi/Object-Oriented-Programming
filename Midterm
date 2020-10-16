@@ -1,0 +1,349 @@
+################################################# Question 1 ####################################################
+
+"
+Design a set of classes to model a phone book. Each Person entry in the phone book should contain a person’s name (string), and multiple
+telephone numbers. The name is mandatory and cannot be changed. Each telephone number will contain a string to indicate the type of number 
+(Mobile, home, work, etc) and an integer for the actual phone number (our system has simple numbers like 1234 or 2112, that’s all).
+Your phone book class will store all of the people. You must make all data members private! 
+
+The classes should have the following functions: 􏱴 
+(A) The PhoneBook class
+      i.   A function to add a new person, with one new phone number and type
+      ii.  A function to search the phone book for a person given their name, returns type Person (the person WILL exist)
+      iii. A function to search the phone book for a phone number, returns type Person (the person WILL exist)
+􏱴 
+(B) The PhoneNumber class
+      i.  Accessors and Mutators (Getters and Setters) for both items 􏱴 The Person Class
+      i.  A function to add a new phone number
+      ii. A function to search for a particular type of phone number, returns type int if found or -1 if not found.
+
+Notes:
+􏱴 Do not use any STL classes we have not discussed in this course
+"
+
+#include <iostream>
+#include <vector>
+
+
+using namespace std;
+
+
+class PhoneNumber {
+private:
+    int phone;
+    string phoneType;
+
+public:
+    // constructor
+    PhoneNumber(int ph, string phTyp): phone(ph), phoneType(phTyp) { }
+
+    // accessors and mutators
+    int getPhone() const { return phone; }
+    string getPhoneType() const { return phoneType; }
+    void setPhone(int ph) { phone = ph; }
+    void setPhoneType(string phTyp) { phoneType = phTyp; }
+};
+
+
+
+class Person {
+private:
+    string name;
+    vector<PhoneNumber> phoneNumbers;
+
+public:
+    // constructor
+    Person(string nm): name(nm) { }
+
+    // accessor
+    string getName() const { return name; }
+
+    void addPhoneNumber(int ph, string phTyp);
+    int findPhoneNumberByType(string phTyp) const;
+    bool searchPhoneNumber(int ph) const;
+};
+
+
+
+class PhoneBook {
+private:
+    vector<Person> persons;
+    
+public:
+    void addPerson(string name, int phnNum, string phnTyp);
+    Person searchPersonByName(string name) const;
+    Person searchPersonByPhone(int phnNum) const;
+};
+
+
+
+// Implementation for Person class functions
+void Person::addPhoneNumber(int ph, string phTyp) {
+    phoneNumbers.push_back(PhoneNumber(ph, phTyp));
+}
+int Person::findPhoneNumberByType(string phTyp) const {
+    for(PhoneNumber ph: phoneNumbers) {
+        if(ph.getPhoneType() == phTyp) {
+            return ph.getPhone();
+        }
+    }
+    return -1;
+}
+bool Person::searchPhoneNumber(int phNum) const {
+    for(PhoneNumber ph: phoneNumbers) {
+        if(ph.getPhone() == phNum) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+
+// Implementation for PhoneBook class functions
+void PhoneBook::addPerson(string name, int phnNum, string phnTyp) {
+    Person p(name);
+    p.addPhoneNumber(phnNum, phnTyp);
+    persons.push_back(p);
+}
+Person PhoneBook::searchPersonByName(string name) const {
+    for(Person p: persons) {
+        if(p.getName() == name) {
+            return p;
+        }
+    }
+    return Person("Not found"); // Code will never reach here as per pre-condition
+}
+Person PhoneBook::searchPersonByPhone(int phnNum) const {
+    for(Person p: persons) {
+        if(p.searchPhoneNumber(phnNum)) {
+            return p;
+        }
+    }
+    return Person("Not found"); // Code will never reach here as per pre-condition
+}
+
+
+int main() {
+    PhoneBook myBook;
+    myBook.addPerson("Danish", 123, "mobile");
+
+    Person p = myBook.searchPersonByName("Danish");
+    cout << p.getName() << endl;
+    cout << p.findPhoneNumberByType("mobile") << endl;
+    cout << p.findPhoneNumberByType("mobile1") << endl;
+
+    p = myBook.searchPersonByPhone(123);
+    cout << p.getName() << endl;
+}
+
+
+################################################# Question 2 ####################################################
+
+"
+Given a file with the GPA (double) of all students, determine the name of the student with the highest GPA. The filename will be given to you
+by the user (be sure to check for validity), and is in two columns, where the first column holds the student’s GPA, and the second holds their name,
+a tab character is used to separate the two columns. Name can be any number of individual words separated by spaces.
+
+A sample of the file is below:
+      2.5 John Jones
+      4.0 Madonna
+      3.773 Ulysses S. Grant
+      
+(The resulting output of the above file would be “The valedictorian is: Madonna”)
+"
+
+#include <iostream>
+#include <fstream>
+#include <cstring>
+
+using namespace std;
+
+void findHighestGPA(string filename) {
+    ifstream file(filename.c_str());
+
+    if(!file) {
+        cout << "Error in opening file " << filename << endl;
+        return;
+    }
+
+    int numRecords = 0;
+    double gpa, maxGPA = 0.0;
+    string name, maxGPAStudent;
+    string line;
+
+    while(file >> gpa >> std::ws) {
+        // Read remaining input, which is name
+        getline(file, name);
+         
+        if(numRecords == 0 || gpa > maxGPA) {
+            maxGPA = gpa;
+            maxGPAStudent = name;
+        }
+        numRecords++;
+    }
+
+    if(numRecords == 0) {
+        cout << "There are no student in the input file." << endl;
+    }
+    else {
+        cout << "The valedictorian is: " << maxGPAStudent << endl;
+    }
+}
+
+int main() {
+    findHighestGPA("input.txt");
+}
+
+
+################################################# Question 3 ####################################################
+
+"
+An animal shelter has a lot of animals for adoption and would like to be able to identify the people who want to adopt those animals. Additionally,
+it would be helpful if we could identify those animals which no one has expressed an interest in adopting so that their prominence on the website can
+be increased (thereby increasing their likelihood of adoption). Also, we’d like to find out which people in our system have not, yet, adopted any pets
+so we can send them a message!
+
+For this problem, you will design two classes, Pet and Adopter. Each Adopter can adopt only one Pet however each Pet can be adopted by multiple adopters
+(multiple people are interested in adopting the same pet). Your task is to identify the potential adopters (people who have not adopted a pet) and which
+pets have no adopters.
+
+Hints:
+􏱴      (a) For this solution, you will need the Pet class to be friends with the Adopter class (put “friend class Adopter;” inside the Pet class)
+􏱴      (b) Define your longer functions OUTSIDE of the class and after all class definitions
+
+The Adopter class will have:
+􏱴 􏱴 􏱴 􏱴 􏱴 􏱴i.   The person’s name
+     ii.  A pointer to the Pet which that person is interested in adopting.
+     iii. A constructor which could be provided, but does not require, a name for the Adopter 
+     iv.  An accessor and mutator (getter and setter) for the name.
+     v.   A function “isAdopting” which returns true if the adopter has selected a Pet to adopt 
+     vi.  A function “getPetName” which returns the name of the pet they want to adopt (a string)
+     vii. A function “adopt” which will take a Pet by reference and adjust both objects accordingly and returns true if the adoption process was allowed, false if not. (remember, you should not allow a person to adopt more than one Pet!)
+
+The pet class will have:
+     i.   The Pet’s name
+     ii.  A vector of pointers to the Adopters which are interested in that pet
+     iii. A constructor which could be provided, but does not require, a name for the Pet
+     iv.  An accessor and mutator (getter and setter) for the name.
+     v.   A function “numberOfAdopters” which returns the number of potential Adopters
+     vi.  A function “getAdopterNames” which returns a vector (by value) with the names of the potential adopters
+"
+
+#include <iostream>
+#include <vector>
+
+
+using namespace std;
+
+class Adopter; // forward declaration for Adopter class.
+
+class Pet {
+private:
+    string name;
+
+    // Collection of adopters for this pet.
+    vector<Adopter*> interestedAdopters;
+
+    friend class Adopter;
+
+public:
+    // constructor
+    Pet(string nm="undefined"): name(nm) { }
+
+    // accessor and mutators
+    void setName(string nm) { name = nm; }
+    string getName() const { return name; }
+
+    unsigned long numberOfAdopters() const { return interestedAdopters.size(); }
+
+    vector<string> getAdopterNames() const;
+};
+
+
+class Adopter {
+private:
+    string name;
+    Pet *adoptedPet;
+
+public:
+    // constructor
+    Adopter(string nm="undefined"): name(nm), adoptedPet(nullptr) { }
+
+    // accessor and mutators
+    void setName(string nm) { name = nm; }
+    string getName() const { return name; }
+    bool isAdopting() const { return adoptedPet != nullptr; }
+
+    string getPetName() const;
+    bool adopt(Pet &pet);
+};
+
+
+
+// Implementation for Pet class functions
+vector<string> Pet::getAdopterNames() const {
+    vector<string> result;
+
+    for(Adopter* a: interestedAdopters) {
+        result.push_back(a->getName());
+    }
+
+    return result;
+}
+
+
+// Implementation for Adopter class functions
+string Adopter::getPetName() const {
+    if(isAdopting()) { return adoptedPet->getName(); }
+    return nullptr; // Default, if Person is not adopting any Pet
+}
+
+bool Adopter::adopt(Pet &pet) {
+    if(!isAdopting()) {
+        adoptedPet = &pet;
+        pet.interestedAdopters.push_back(this);
+        return true;
+    }
+    return false;
+}
+
+
+int main() {
+    Adopter betty("Betty");
+    Adopter tom("Tom");
+    Adopter alice("Alice");
+    Adopter bob("Bob");
+    
+    Pet fido("Fido");
+    Pet fluffy("Fluffy");
+    Pet smellyCat("SmellyCat");
+
+    if (betty.adopt(fido))
+        cout << "Betty Adopted Fido" << endl;
+    else
+        cout << "Betty cannot adopt Fido" << endl;
+
+    
+    if (tom.adopt(fido))
+        cout << "Tom Adopted Fido" << endl;
+    else
+        cout << "Tom cannot adopt Fido" << endl;
+
+    
+    if (alice.adopt(fluffy))
+        cout << "Alice Adopted fluffy" << endl;
+    else
+        cout << "Alice cannot adopt fluffy" << endl;
+    
+    
+    if (alice.adopt(smellyCat))
+        cout << "Alice Adopted smellyCat" << endl;
+    else
+        cout << "Alice cannot adopt smellyCat" << endl;
+
+    
+    cout << "Fido has " << fido.numberOfAdopters() << " Adopters" << endl;
+    cout << "Fluffy has " << fluffy.numberOfAdopters() << " Adopters" << endl;
+    cout << "SmellyCat has " << smellyCat.numberOfAdopters() << " Adopters" << endl;
+}
