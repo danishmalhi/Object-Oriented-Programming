@@ -1,0 +1,109 @@
+#include <iostream>
+
+using namespace std;
+
+class Vehicle {
+    int *VIN;
+    double *mileage;
+
+public:
+    Vehicle(int *VIN, double *mileage) {
+        this->VIN = VIN;
+        this->mileage = mileage;
+    }
+    
+    int getVIN() const {
+        return *VIN;
+    }
+    
+    double getMileage() const {
+        return *mileage;
+    }
+    
+    void setVIN(int x) {
+        *VIN = x;
+    }
+    
+    void setMileage(double x) {
+        *mileage = x;
+    }
+
+    virtual void display() const {
+        cout << "Vehicle Mileage: " << (*mileage);
+        cout << ", VIN: " << (*VIN) << endl;
+    }
+    
+    virtual double calcGasUsed(int numMiles) const {
+        return numMiles/(*mileage);
+    }
+    
+    void drive() const {
+        int x = rand() % 25 + 1;
+        double gas = calcGasUsed(x);
+        cout << "Driving " << x << " miles with " << gas << " gallons" << endl;
+    }
+};
+
+class SUV: public Vehicle {
+    bool *fourWDStatus;
+    double *fourWDgasMileage;
+
+public:
+    SUV(int *VIN, double *mileage, bool *fourWDStatus, double *fourWDgasMileage): Vehicle(VIN, mileage) {
+        this->fourWDStatus = fourWDStatus;
+        this->fourWDgasMileage = fourWDgasMileage;
+    }
+    
+    void display() const {
+        Vehicle::display();
+        cout << "SUV fourWDStatus: " << (*fourWDStatus ? "true" : "false");
+        cout << ", SUV fourWDgasMileage: " << (*fourWDgasMileage) << endl;
+    }
+
+    bool getFourWDStatus() const {
+        return *fourWDStatus;
+    }
+    
+    double getFourWDgasMileage() const {
+        return *fourWDgasMileage;
+    }
+    
+    void setFourWDStatus(bool x) {
+        *fourWDStatus = x;
+    }
+    
+    void setFourWDgasMileage(double x) {
+        *fourWDgasMileage = x;
+    }
+    
+    double calcGasUsed(int numMiles) const {
+        if(*fourWDStatus) {
+            return numMiles/(*fourWDgasMileage);
+        }
+        return Vehicle::calcGasUsed(numMiles);
+    }
+};
+
+int main() {
+    int vin1=123, vin2=456, vin3=789;
+    double mileage1=1, mileage2=2, mileage3=3;
+    
+    bool fourWDStatus2=true, fourWDStatus3=false;
+    double fourWDgasMileage2=4, fourWDgasMileage3=5;
+
+    Vehicle* vehicles[] = {
+        new Vehicle(&vin1, &mileage1),
+        new SUV(&vin2, &mileage2, &fourWDStatus2, &fourWDgasMileage2),
+        new SUV(&vin3, &mileage3, &fourWDStatus3, &fourWDgasMileage3)
+    };
+
+    for(int i=0; i<3; i++) {
+        cout << "Vehicle " << (i+1) << endl;
+        vehicles[i]->display();
+        vehicles[i]->drive();
+        cout << endl << endl;
+
+        delete vehicles[i]; // free memory
+    }
+}
+
