@@ -1,0 +1,74 @@
+#include <iostream>
+#include <vector>
+#include <fstream>
+#include <string>
+
+using namespace std;
+
+//PART1 PART1 PART1 PART1 PART1 PART1 PART1
+int isInVector(vector<int>& v, int x){
+   for (int i = 0; i < v.size(); i++){
+       if (v[i] == x){
+           return true;
+       }
+   }
+   return false;
+}
+
+//PART2 PART2 PART2 PART2 PART2 PART2 PART2
+void makeUnique(vector<int>& v1, vector<int>& v2){
+   for (int i = 0; i < v1.size(); i++){
+       if (isInVector(v2, v1[i]) == false){
+           v2.push_back(v1[i]);
+       }
+   }
+}
+
+//PART3 PART3 PART3 PART3 PART3 PART3 PART3
+void fillVectFromFile(vector<int>& v){
+   string filename;
+   ifstream readFile;
+   cout << "Enter input file: ";
+   cin >> filename;
+   readFile.open(filename);
+   if (!readFile){
+       cout << "Invalid file" << endl;
+   }
+    
+   else{
+       int x;
+       while (readFile >> x){
+           v.push_back(x);
+       }
+   }
+   readFile.close();
+}
+
+//PART4 PART4 PART4 PART4 PART4 PART4 PART4
+int writeToFile(vector<int> v){
+   fillVectFromFile(v);
+   vector<int> copyVec;
+   makeUnique(v, copyVec);
+   string filename;
+   ofstream writeFile;
+   cout << "Enter output file: ";
+   cin >> filename;
+   writeFile.open(filename);
+   for (int i = 0; i < copyVec.size(); i++){
+       writeFile << copyVec[i] << "\t";
+   }
+   writeFile.close();
+   return 0;
+}
+
+int main(){
+   vector<int> v1;
+   vector<int> v2;
+   makeUnique(v1, v2);
+    
+   vector<int> v3;
+   fillVectFromFile(v3);
+
+   vector<int> v4;
+   writeToFile(v4);
+}
