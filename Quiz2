@@ -1,0 +1,136 @@
+#include <iostream>
+
+using namespace std;
+
+class Car {
+private:
+    string make, model;
+    int licensePlate;
+    double gas, odometer, effRating;
+
+public:
+    Car() {
+        make = "(unspecified)";
+        model = "(unspecified)";
+        gas = 15;
+        effRating = 25;
+        licensePlate = 0;
+    }
+    Car(string newMake) {
+        make = newMake;
+        model = "(unspecified)";
+        gas = 15;
+        effRating = 25;
+        licensePlate = 0;
+    }
+    Car(string newMake, string newModel) {
+        make = newMake;
+        model = newModel;
+        gas = 15;
+        effRating = 25;
+        licensePlate = 0;
+    }
+    Car(string newMake, string newModel, int nlicensePlate, double ngas) {
+        make = newMake;
+        model = newModel;
+        gas = ngas;
+        effRating = 25;
+        licensePlate = nlicensePlate;
+    }
+    Car(string newmake, int newlicensePlate, double newgas, double neweffRating) {
+        make = newmake;
+        model = "(unspecified)";
+        licensePlate = newlicensePlate;
+        gas = newgas;
+        effRating = neweffRating;
+    }
+
+    void setLicense(int l) {
+        licensePlate = l;
+    }
+
+    int drive() {
+        if(gas <= 0) {
+            return 0;
+        }
+        int r = (rand() % 25) + 1;
+        gas = gas - (r/effRating);
+        if(gas < 0) {
+            gas = 0;
+        }
+        return r;
+    }
+
+    double getGas() {
+        return gas;
+    }
+    string getMake() {
+        return make;
+    }
+    string getModel() {
+        return model;
+    }
+    int getLicense() {
+        return licensePlate;
+    }
+    double getEffRating() {
+        return effRating;
+    }
+};
+
+void displayCar(Car c) {
+    cout << "Make: " << c.getMake() << endl;
+    cout << "Model: " << c.getModel() << endl;
+    if(c.getLicense() != 0) {
+        cout << "License: " << c.getLicense() << endl;
+    } else {
+    cout << "License: N/A" << endl;
+    }
+    cout << "Efficiency Rating: " << c.getEffRating() << endl << endl;
+}
+
+int main(){
+    // Car(make, model, licensePlate, gas, effRating)
+    Car cA;
+    Car cB("makeCB");
+    Car c1("make1", "model1", 123, 15); // effRating should be set to 25 default
+    Car c2("make2", 456, 1, 20);
+    
+    // either display with function OR overload output operator
+    displayCar(cA);
+    displayCar(cB);
+    displayCar(c1);
+    displayCar(c2);
+    
+//    cout << cA;
+//    cout << cB;
+//    cout << c1;
+//    cout << c2;
+    
+    c2.setLicense(1010);
+    cout << "Change license of c2...\n";
+    displayCar(c2);
+//    cout << c2;
+
+    cout << "--NOTE: results for the following will vary due to rand()!--\n\n";
+    
+    cout << "Drive c1...\n";
+    int milesDriven = c1.drive();
+    cout << "c1 drove " << milesDriven << " miles\n";
+    cout << "c1 has " << c1.getGas() << " gallons left\n";
+
+    cout << endl;
+
+    cout << "Drive c2...\n";
+    milesDriven = c2.drive();
+    cout << "c2 drove " << milesDriven << " miles\n";
+    cout << "c2 has " << c2.getGas() << " gallons left\n";
+
+    cout << endl;
+
+    cout << "Drive c2...\n";
+    milesDriven = c2.drive();
+    cout << "c2 drove " << milesDriven << " miles\n";
+    cout << "c2 has " << c2.getGas() << " gallons left\n";
+}
+
