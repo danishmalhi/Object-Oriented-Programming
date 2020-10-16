@@ -1,0 +1,146 @@
+#include <iostream>
+
+
+using namespace std;
+
+class Time {
+private:
+    int day = 0;
+    int hour = 0;
+    int minute = 0;
+
+public:
+    Time();
+    Time(int,int,int);
+    
+    int const getDay();
+    int const getHr();
+    int const getMin();
+    void setDay(int);
+    void setHr(int);
+    void setMin(int);
+
+    friend ostream& operator<<(ostream& os, const Time& t);
+    void operator--();
+    Time operator--(int);
+
+    void operator++();
+    Time operator++(int);
+};
+
+Time Time::operator--(int) {
+    Time temp;
+    temp.day = this->day - 1;
+    temp.hour = this->hour - 1;
+    temp.minute = this->minute - 1;
+
+    return temp;
+}
+
+void Time::operator--() {
+    this->day = this->day - 1;
+    this->hour = this->hour - 1;
+    this->minute = this->minute - 1;
+}
+
+
+Time Time::operator++(int) {
+    Time temp;
+    temp.day = this->day+1;
+    temp.hour = this->hour + 1;
+    temp.minute = this->minute + 1;
+    return temp;
+}
+
+void Time::operator++() {
+    this->day = this->day + 1;
+    this->hour = this->hour + 1;
+    this->minute = this->minute+ 1;
+}
+
+
+ostream& operator<<(ostream& os, const Time& t){
+    os << t.hour << ':' << t.minute << " ("<< t.day<<")";
+    return os;
+}
+
+
+int const Time::getDay(){ return this->day; }
+
+void Time::setDay(int day) {
+    this->day = this->day+ day;
+}
+
+
+int const Time::getHr() { return this->hour; }
+
+void Time::setHr(int hour){
+    this->hour = this->hour+ hour % 24;
+    this->day = this->day + hour / 24;
+}
+
+
+int const Time::getMin() { return this->minute; }
+
+void Time::setMin(int minute){
+    this->minute = this->minute + minute % 60;
+    this->hour = this->hour+ minute / 60;
+}
+
+Time::Time() {
+   this->hour = 0;
+   this->day = 0;
+   this->minute= 0;
+}
+
+Time::Time(int day, int hour, int minute )  {
+    bool valid = false;
+    if (hour >= 0 && hour < 24) {
+        valid = true;
+    }
+    
+    if (minute >= 0 && minute < 60) {
+        valid = true;
+    }
+    
+    if (valid) {
+        this->day = day;
+        this->hour = hour;
+        this->minute = minute;
+    }
+}
+
+
+int main(){
+    Time time1(15, 9, 20);
+    Time time2(0,0,0);
+  
+    cout << time1 << endl;
+    time1.setDay(1);
+    cout << time1 << endl;
+    time1.setHr(1);
+    cout << time1 << endl;
+    time1.setHr(25);
+    cout << time1 << endl;
+    time1.setMin(1);
+    cout << time1 << endl;
+    time1.setMin(75);
+    cout << time1 << endl;
+
+    ++time1;
+    cout << time1 << endl;
+
+    time2 = time1++;
+    cout << time2 << endl;
+
+
+    --time1;
+    cout << time1 << endl;
+
+    time2 = time1--;
+    cout << time2 << endl;
+
+    return 0;
+}
+
+
